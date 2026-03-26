@@ -1,4 +1,4 @@
-:root { --primary: #0f172a; --secondary: #1e293b; --accent: #f59e0b; --bg: #f1f5f9; --danger: #ef4444; --success: #22c55e; --text: #334155; }
+  :root { --primary: #0f172a; --secondary: #1e293b; --accent: #f59e0b; --bg: #f1f5f9; --danger: #ef4444; --success: #22c55e; --text: #334155; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; color: var(--text); }
         
@@ -76,16 +76,21 @@
             #dataModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block !important; }
             .no-print { display: none !important; }
         }
-/* --- 7. LAYOUT TOGGLES --- */
+
+/* --- 7. LAYOUT TOGGLES (MOBILE FIX) --- */
+body {
+    height: 100dvh; /* Prevents mobile browser bar from pushing content off-screen */
+}
+
 #map {
-    transition: height 0.3s ease, flex 0.3s ease;
+    transition: height 0.3s ease;
 }
 
-#map.expanded {
-    height: auto;
-    flex: 1; /* Forces the map to fill all remaining vertical space */
+#map.full-map {
+    height: 100dvh !important;
+    flex: 1;
 }
 
-.content.collapsed {
-    display: none; /* Hides the data feed completely */
+.hidden-view {
+    display: none !important;
 }
