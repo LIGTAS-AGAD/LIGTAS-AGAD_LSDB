@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>LSDB V6</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LIGTAS-AGAD LANDSLIDE DATABASE</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-area">
+            <img src="https://raw.githubusercontent.com/Gabzrock/LIGTASkanaba/refs/heads/main/LIGTAS-AGAD%202026%20official%20logo.png" class="logo-icon" width="50" height="30">
+            <span>LIGTAS-AGAD | LANDSLIDE DATABASE</span>
+        </div>
+        <div class="nav-menu">
+            <span class="nav-item active" onclick="closeCharts()">Map</span>
+            <span class="nav-item" onclick="openCharts()">Data Visualization</span>
+            <span class="nav-item" onclick="connectRegistry()">Data Sync</span>
+        </div>
+    </nav>
+
+    <div id="map">
+        <button class="gps-btn no-print" onclick="locateUser()" title="Find My Location">📍</button>
+    </div>
+
+    <div class="status-bar">
+        <div class="indicator">
+            <div id="sys-pulse" class="pulse"></div>
+            <span id="sys-text">SYSTEM INITIALIZING...</span>
+        </div>
+        <div id="rec-count">WAITING FOR DATA...</div>
+    </div>
+
+    <div class="filter-shelf">
+        <div class="f-item"><input type="text" id="q" onkeyup="filter()" placeholder="Search ID or Town..."></div>
+        <div class="f-item small"><select id="fY" onchange="filter()"><option value="">Year</option></select></div>
+        <div class="f-item"><select id="fR" onchange="filter()"><option value="">Region</option></select></div>
+        <div class="f-item"><select id="fP" onchange="filter()"><option value="">Province</option></select></div>
+        <div class="f-item"><select id="fT" onchange="filter()"><option value="">Trigger</option></select></div>
+        <div class="f-item small"><button class="btn btn-sec" onclick="reset()">Reset</button></div>
+        <div class="f-item"><button class="btn btn-main" id="toggleViewBtn" onclick="toggleView('map')">Expand Map</button></div>
+    </div>
+
+    <div class="content" id="feed">
+        <div style="text-align:center; padding:60px; color:#94a3b8; font-size:14px;">
+            Connecting to secure registry...<br>Please wait.
+        </div>
+    </div>
+
+    <div id="chartModal" class="modal">
+        <div class="m-header">
+            <span style="font-weight:900;">DATA VISUALIZATION</span>
+            <button class="btn btn-sec no-print" style="width:auto; padding:5px 12px;" onclick="closeCharts()">✕ Close</button>
+        </div>
+        <div class="m-body">
+            <div class="chart-box">
+                <div class="chart-head">RECORDED LANDSLIDES (YEARLY)</div>
+                <canvas id="chartYear"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-head">TOP HIGH-RISK PROVINCES</div>
+                <canvas id="chartProv"></canvas>
+            </div>
+            <div class="chart-box">
+                <div class="chart-head">TRIGGER DISTRIBUTION</div>
+                <div style="max-width:300px; margin:auto;"><canvas id="chartTrig"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dataModal" class="modal">
+        <div class="m-header">
+            <span style="font-weight:900;">OFFICIAL INCIDENT REPORT</span>
+            <button class="btn btn-sec no-print" style="width:auto; padding:5px 12px;" onclick="closeModal()">✕ Close</button>
+        </div>
+        <div class="m-body" id="m-body"></div>
+        <div class="no-print" style="padding:20px; border-top:1px solid #eee;">
+            <button class="btn btn-main" onclick="window.print()">Print / Save as PDF</button>
+        </div>
+    </div>
+</body>
+</html>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
