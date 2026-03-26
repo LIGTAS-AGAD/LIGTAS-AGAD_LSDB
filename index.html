@@ -1,16 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>LSDB V6</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -53,8 +42,8 @@
         <div class="f-item"><select id="fR" onchange="filter()"><option value="">Region</option></select></div>
         <div class="f-item"><select id="fP" onchange="filter()"><option value="">Province</option></select></div>
         <div class="f-item"><select id="fT" onchange="filter()"><option value="">Trigger</option></select></div>
-<div class="f-item small"><button class="btn btn-sec" onclick="reset()">Reset</button></div>
-<div class="f-item"><button class="btn btn-main" id="toggleViewBtn" onclick="toggleLayout()">Expand Map</button></div>
+        <div class="f-item small"><button class="btn btn-sec" onclick="reset()">Reset</button></div>
+        <div class="f-item"><button class="btn btn-main" id="toggleViewBtn" onclick="toggleView('map')">Expand Map</button></div>
     </div>
 
     <div class="content" id="feed">
@@ -95,9 +84,4 @@
         </div>
     </div>
 </body>
-</html>
-    <script  src="./script.js"></script>
-
-  </body>
-  
 </html>
