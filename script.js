@@ -1,4 +1,4 @@
-let db = [];
+ let db = [];
         let map, markers, userMarker;
         let charts = {}; 
         const PH_CENTER = [12.8797, 121.7740];
@@ -279,30 +279,47 @@ let db = [];
             map.setView(PH_CENTER, 4);
             filter();
         }
-// --- LAYOUT TOGGLE LOGIC ---
-function toggleLayout() {
+
+// --- 3-WAY LAYOUT TOGGLE LOGIC ---
+function toggleView(viewType) {
     const mapDiv = document.getElementById('map');
     const feedDiv = document.getElementById('feed');
     const btn = document.getElementById('toggleViewBtn');
 
-    // Toggle the CSS classes
-    mapDiv.classList.toggle('expanded');
-    feedDiv.classList.toggle('collapsed');
+    if (viewType === 'map') {
+        // STATE 1: Full Map (Hide List)
+        mapDiv.classList.remove('hidden-view');
+        mapDiv.classList.add('full-map');
+        feedDiv.classList.add('hidden-view');
+        
+        btn.innerText = 'Expand List';
+        btn.style.background = '#64748b'; // Dim color
+        btn.onclick = () => toggleView('list');
 
-    // Update button text and style based on the current state
-    if (mapDiv.classList.contains('expanded')) {
-        btn.innerText = 'Show List';
-        btn.style.background = '#64748b'; // Dim the button when list is hidden
+    } else if (viewType === 'list') {
+        // STATE 2: Full List (Hide Map)
+        mapDiv.classList.add('hidden-view');
+        mapDiv.classList.remove('full-map');
+        feedDiv.classList.remove('hidden-view');
+        
+        btn.innerText = 'Show Split View';
+        btn.style.background = '#10b981'; // Green color for list
+        btn.onclick = () => toggleView('split');
+
     } else {
+        // STATE 3: Default Split View
+        mapDiv.classList.remove('hidden-view', 'full-map');
+        feedDiv.classList.remove('hidden-view');
+        
         btn.innerText = 'Expand Map';
-        btn.style.background = 'var(--accent)'; // Highlight when map is back to normal
+        btn.style.background = 'var(--accent)'; // Original orange
+        btn.onclick = () => toggleView('map');
     }
 
-    // CRITICAL: Leaflet must recalculate its view portal after a container resize
-    // We wrap it in a short timeout to let the CSS transition finish first
-    setTimeout(() => {
-        map.invalidateSize();
-    }, 300); 
+    // CRITICAL: Force Leaflet to redraw the map if it's currently visible
+    if (!mapDiv.classList.contains('hidden-view')) {
+        setTimeout(() => map.invalidateSize(), 300);
+    }
 }
 
         function closeModal() { document.getElementById('dataModal').style.display = 'none'; }
