@@ -1,16 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>LSDB V6</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -19,67 +8,192 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
     <nav class="navbar">
         <div class="logo-area">
-            <img src="https://raw.githubusercontent.com/Gabzrock/LIGTASkanaba/refs/heads/main/LIGTAS-AGAD%202026%20official%20logo.png" class="logo-icon" width="50" height="30">
-            <span>LIGTAS-AGAD | LANDSLIDE DATABASE</span>
+            <img src="https://raw.githubusercontent.com/Gabzrock/LIGTASkanaba/refs/heads/main/LIGTAS-AGAD%202026%20official%20logo.png" class="logo-icon">
+            <span class="nav-title">LIGTAS-AGAD | WEB DATABASE</span>
         </div>
-        <div class="nav-menu">
-            <span class="nav-item active" onclick="closeCharts()">Map</span>
-            <span class="nav-item" onclick="openCharts()">Data Visualization</span>
-            <span class="nav-item" onclick="connectRegistry()">Data Sync</span>
+        <div class="hamburger" onclick="toggleMobileMenu()">☰</div>
+        <div class="nav-menu" id="navMenu">
+            <span class="nav-item active" onclick="closeCharts(); closeMobileMenu()">Map & Data</span>
+            <span class="nav-item" onclick="openCharts(); closeMobileMenu()">Analytics</span>
+            <span class="nav-item" onclick="locateUser(); closeMobileMenu()">My Location</span>
+            <span class="nav-item theme-btn" onclick="toggleTheme(); closeMobileMenu()">🎨 Theme</span>
+            
+             <span class="nav-item" style="background: rgba(255,255,255,0.15);" onclick="window.open('https://ligtas.uplb.edu.ph/LIGTAS-AGAD_new_portal-main/', '_blank'); closeMobileMenu()">🌐 LIGTAS-AGAD Portal</span>
+            <span class="nav-item" style="background: rgba(255,255,255,0.15);" onclick="window.open('https://script.google.com/a/macros/up.edu.ph/s/AKfycbwgKyx6_d9A7q5tw1x-ZkqTPIbRSx2lR4Y6LNU6UTqVzq4PTCshmzuWm3iT8ILN8nxAFg/exec', '_blank'); closeMobileMenu()">🌐 Landslide Encoder Form</span>
+            <span class="nav-item" style="background: rgba(255,255,255,0.15);" onclick="window.open('https://docs.google.com/spreadsheets/d/1Aj9Un6AwXpI9R7eNYrDmLvB86PebOGdPuJa98u8W8mE/edit?gid=238857508#gid=238857508', '_blank'); closeMobileMenu()">🌐 Spreadsheets</span>
         </div>
     </nav>
 
-    <div id="map">
-        <button class="gps-btn no-print" onclick="locateUser()" title="Find My Location">📍</button>
-    </div>
-
-    <div class="status-bar">
-        <div class="indicator">
-            <div id="sys-pulse" class="pulse"></div>
-            <span id="sys-text">SYSTEM INITIALIZING...</span>
+    <div class="toolbar no-print">
+        <div class="toolbar-header">
+            <span style="font-weight:900; font-size:14px; color:var(--primary);">🔍 DATA FILTERS</span>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <button class="btn btn-main btn-sm" onclick="reset()">Reset</button>
+                <button class="btn btn-sec btn-sm" onclick="refreshData()">🔄 Refresh</button>
+                <button class="btn btn-sec btn-sm" style="background:#10b981; color:white; border:none;" onclick="downloadCSV()">⬇ CSV</button>
+                <button class="btn btn-sec btn-sm" style="background:#3b82f6; color:white; border:none;" onclick="downloadGeoJSON()">⬇ GeoJSON</button>
+                <button class="btn btn-sec btn-sm" onclick="toggleFilters()">Show/Hide</button>
+            </div>
         </div>
-        <div id="rec-count">WAITING FOR DATA...</div>
-    </div>
-
-    <div class="filter-shelf">
-        <div class="f-item"><input type="text" id="q" onkeyup="filter()" placeholder="Search ID or Town..."></div>
-        <div class="f-item small"><select id="fY" onchange="filter()"><option value="">Year</option></select></div>
-        <div class="f-item"><select id="fR" onchange="filter()"><option value="">Region</option></select></div>
-        <div class="f-item"><select id="fP" onchange="filter()"><option value="">Province</option></select></div>
-        <div class="f-item"><select id="fT" onchange="filter()"><option value="">Trigger</option></select></div>
-        <div class="f-item small"><button class="btn btn-sec" onclick="reset()">Reset</button></div>
-        <div class="f-item"><button class="btn btn-main" id="toggleViewBtn" onclick="toggleView('map')">Expand Map</button></div>
-    </div>
-
-    <div class="content" id="feed">
-        <div style="text-align:center; padding:60px; color:#94a3b8; font-size:14px;">
-            Connecting to secure registry...<br>Please wait.
+        
+        <div id="filterControls" class="filter-controls">
+            <input type="text" id="q" class="search-box" placeholder="Search locations, triggers, IDs...">
+            <select id="fY" class="filter-dropdown"></select>
+            <select id="fR" class="filter-dropdown"></select>
+            <select id="fP" class="filter-dropdown"></select>
+            <select id="fT" class="filter-dropdown"></select>
+            <label class="extent-toggle" title="Update the list and charts as you drag the map">
+                <input type="checkbox" id="fExtent" onchange="filter()"> Filter by Map Extent
+            </label>
         </div>
+    </div>
+
+    <div class="main-content">
+        <div id="map"></div>
+        
+        <div class="view-controls no-print">
+            <button id="toggleViewBtn" class="btn btn-toggle" onclick="toggleView('map')">Expand Map</button>
+        </div>
+        
+        <div id="feed" class="feed list-mode"></div>
+        
+        <div id="paginationControls" class="pagination-bar no-print"></div>
+    </div>
+
+    <div class="status-bar no-print">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <div id="sys-pulse" class="pulse online"></div>
+            <span id="sys-text" style="font-weight:700; font-size:12px;">INITIALIZING...</span>
+        </div>
+        <div id="rec-count" style="font-weight:900; color:var(--accent); font-size:14px;">0 RECORDS</div>
+    </div>
+    
+    <div class="app-footer no-print">
+        System Developed & Maintained by Project LIGTAS-AGAD | Supported by DOST & UPLB-SESAM
     </div>
 
     <div id="chartModal" class="modal">
         <div class="m-header">
-            <span style="font-weight:900;">DATA VISUALIZATION</span>
-            <button class="btn btn-sec no-print" style="width:auto; padding:5px 12px;" onclick="closeCharts()">✕ Close</button>
+            <div style="display:flex; flex-direction:column;">
+                <span style="font-weight:900;">DATA VISUALIZATION & ANALYSIS</span>
+                <span id="totalReportCount" style="color:var(--accent); font-size:14px; font-weight:bold;"></span>
+            </div>
+            <button class="btn btn-sec no-print btn-sm" style="width:auto;" onclick="closeCharts()">✕ Close</button>
         </div>
-        <div class="m-body">
-            <div class="chart-box">
-                <div class="chart-head">RECORDED LANDSLIDES (YEARLY)</div>
-                <canvas id="chartYear"></canvas>
+        
+        <div class="m-body chart-grid">
+            <div class="chart-box full-width">
+                <div class="chart-head">
+                    <span>RECORDED LANDSLIDES (YEARLY)</span>
+                    <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartYear', 'Yearly_Landslides')">⬇ PNG</button>
+                </div>
+                <div style="height: 300px; position:relative;">
+                    <canvas id="chartYear"></canvas>
+                </div>
             </div>
-            <div class="chart-box">
-                <div class="chart-head">TOP HIGH-RISK PROVINCES</div>
-                <canvas id="chartProv"></canvas>
+            
+            <div class="chart-box full-width">
+                <div class="chart-head">
+                    <span>PROVINCIAL RISK DISTRIBUTION</span>
+                    <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartProv', 'Provinces')">⬇ PNG</button>
+                </div>
+                <div class="scroll-chart">
+                    <div id="wrap-chartProv" style="position:relative; width:100%;">
+                        <canvas id="chartProv"></canvas>
+                    </div>
+                </div>
             </div>
+            
+            <div class="chart-box full-width">
+                <div class="chart-head">
+                    <span>TRIGGER DISTRIBUTION</span>
+                    <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartTrig', 'Triggers')">⬇ PNG</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px;">
+                    <div style="height: 350px; position: relative; margin:auto; width: 100%;"><canvas id="chartTrig"></canvas></div>
+                    <div id="tableTrig"></div>
+                </div>
+            </div>
+
             <div class="chart-box">
-                <div class="chart-head">TRIGGER DISTRIBUTION</div>
-                <div style="max-width:300px; margin:auto;"><canvas id="chartTrig"></canvas></div>
+                <div class="chart-head">
+                    <span>GENERAL SOURCE DISTRIBUTION</span>
+                    <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartGenSrc', 'General_Sources')">⬇ PNG</button>
+                </div>
+                <div class="scroll-chart">
+                    <div id="wrap-chartGenSrc" style="position:relative; width:100%;">
+                        <canvas id="chartGenSrc"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-box">
+                <div class="chart-head">
+                    <span>SPECIFIC SOURCES</span>
+                    <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartSpecSrc', 'Specific_Sources')">⬇ PNG</button>
+                </div>
+                <div class="scroll-chart">
+                    <div id="wrap-chartSpecSrc" style="position:relative; width:100%;">
+                        <canvas id="chartSpecSrc"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-box full-width" style="background: var(--input-bg); border: 2px solid var(--border-color);">
+                <div class="chart-head" style="border-bottom: 2px solid var(--border-color);">
+                    <span>DATABASE COMPLETENESS (ALL-TIME SYSTEM RECORDS)</span>
+                </div>
+                <div class="donut-grid">
+                    <div>
+                        <div class="donut-title">
+                            <span>GPS COORDINATES</span>
+                            <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartCoords', 'Comp_GPS')">⬇</button>
+                        </div>
+                        <div class="donut-wrapper"><canvas id="chartCoords"></canvas></div>
+                    </div>
+                    <div>
+                        <div class="donut-title">
+                            <span>GEO LOCATION</span>
+                            <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartLoc', 'Comp_Location')">⬇</button>
+                        </div>
+                        <div class="donut-wrapper"><canvas id="chartLoc"></canvas></div>
+                    </div>
+                    <div>
+                        <div class="donut-title">
+                            <span>EVENT DATE</span>
+                            <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartDate', 'Comp_Date')">⬇</button>
+                        </div>
+                        <div class="donut-wrapper"><canvas id="chartDate"></canvas></div>
+                    </div>
+                    <div>
+                        <div class="donut-title">
+                            <span>EVENT TIME</span>
+                            <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartTime', 'Comp_Time')">⬇</button>
+                        </div>
+                        <div class="donut-wrapper"><canvas id="chartTime"></canvas></div>
+                    </div>
+                    <div>
+                        <div class="donut-title">
+                            <span>TRIGGER (LSTRIGGER)</span>
+                            <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartCompletenessTrig', 'Comp_Trigger')">⬇</button>
+                        </div>
+                        <div class="donut-wrapper"><canvas id="chartCompletenessTrig"></canvas></div>
+                    </div>
+                    <div>
+                        <div class="donut-title">
+                            <span>CATEGORY (LSCATEGORY)</span>
+                            <button class="btn btn-sec btn-sm" style="width:auto;" onclick="downloadChart('chartCompletenessCat', 'Comp_Category')">⬇</button>
+                        </div>
+                        <div class="donut-wrapper"><canvas id="chartCompletenessCat"></canvas></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -87,17 +201,14 @@
     <div id="dataModal" class="modal">
         <div class="m-header">
             <span style="font-weight:900;">OFFICIAL INCIDENT REPORT</span>
-            <button class="btn btn-sec no-print" style="width:auto; padding:5px 12px;" onclick="closeModal()">✕ Close</button>
+            <button class="btn btn-sec no-print btn-sm" style="width:auto;" onclick="closeModal()">✕ Close</button>
         </div>
         <div class="m-body" id="m-body"></div>
-        <div class="no-print" style="padding:20px; border-top:1px solid #eee;">
-            <button class="btn btn-main" onclick="window.print()">Print / Save as PDF</button>
+        <div class="modal-footer no-print">
+            <button class="btn btn-main" onclick="window.print()">Print Report</button>
         </div>
     </div>
-</body>
-</html>
-    <script  src="./script.js"></script>
 
-  </body>
-  
+    <script src="./script.js"></script>
+</body>
 </html>
